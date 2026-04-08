@@ -2,59 +2,72 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import urllib.parse
 
 # إعدادات الصفحة
 st.set_page_config(page_title="Phenomena Luxury", page_icon="💎", layout="centered")
 
-# تصميم الاستايل (CSS) عشان نخليه فخم
+# تصميم الاستايل (CSS)
 st.markdown("""
     <style>
-    .main { background-color: #050505; }
-    h1 { color: #d4af37; font-family: 'Times New Roman'; text-align: center; }
-    .stButton>button { background-color: #d4af37; color: black; width: 100%; border-radius: 5px; font-weight: bold; }
+    .main { background-color: #050505; color: white; }
+    h1 { color: #d4af37; font-family: 'Times New Roman'; text-align: center; font-size: 3em; }
+    .stButton>button { background-color: #d4af37; color: black; width: 100%; border-radius: 5px; font-weight: bold; height: 3em; border: none; }
+    .stTextInput label, .stSelectbox label { color: #d4af37 !important; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("PHENOMENA")
+st.write("<h4 style='text-align: center; color: #3776ab;'>POWERED BY PYTHON</h4>", unsafe_allow_html=True)
 st.write("---")
 
-# بيانات العطور
+# بيانات العطور بالصور الـ 3D
 perfumes = {
-    "Milky Way": {"price": "450 EGP", "img": "perfume_images/Milky Way.jpeg"},
-    "Roma Aure": {"price": "450 EGP", "img": "perfume_images/Roma Aure.jpeg"},
-    "Legacy": {"price": "450 EGP", "img": "perfume_images/Legacy.jpeg"},
-    "R9 Elite": {"price": "550 EGP", "img": "perfume_images/R9.jpeg"}
+    "Milky Way": {"price": "450", "img": "milky_3d.png"},
+    "Roma Aure": {"price": "450", "img": "roma_3d.png"},
+    "Legacy": {"price": "450", "img": "legacy_3d.png"},
+    "R9 Elite": {"price": "550", "img": "r9_3d.png"}
 }
 
-# اختيار العطر
-selected = st.selectbox("اختر عطرك المفضل:", list(perfumes.keys()))
+selected = st.selectbox("اختر عطر الانفراد الحصري:", list(perfumes.keys()))
 
-# عرض الصورة والسعر
-col1, col2 = st.columns([1, 1])
-with col1:
-    if os.path.exists(perfumes[selected]["img"]):
-        st.image(perfumes[selected]["img"], use_container_width=True)
-with col2:
-    st.subheader(selected)
-    st.write(f"**Price:** {perfumes[selected]['price']}")
-    st.write("**Size:** 50ml")
+# عرض الصورة
+if os.path.exists(perfumes[selected]["img"]):
+    st.image(perfumes[selected]["img"], use_container_width=True)
+else:
+    st.info("📸 برجاء رفع الصور الـ 3D الجديدة على GitHub لتظهر هنا")
+
+st.write(f"### **Price:** {perfumes[selected]['price']} EGP")
+st.write("**Size:** 50ml | **Gender:** Unisex")
 
 # خانات البيانات
 st.write("---")
 name = st.text_input("الاسم الكامل")
 phone = st.text_input("رقم الهاتف")
 
-if st.button("تأكيد الطلب الآن"):
+# رقم الواتساب الخاص بك
+my_whatsapp = "201100331533" 
+
+if st.button("تأكيد الطلب عبر واتساب 💬"):
     if name and len(phone) >= 11:
-        # حفظ الطلب في ملف Excel عشان يفتح معاك أسهل
-        now = datetime.now().strftime("%Y-%m-%d %H:%M")
-        new_order = {"الوقت": now, "العميل": name, "الهاتف": phone, "العطر": selected}
+        # تجهيز رسالة الواتساب
+        message = f"طلب جديد من Phenomena 💎\n\nالاسم: {name}\nالهاتف: {phone}\nالعطر: {selected}\nالسعر: {perfumes[selected]['price']} EGP"
+        msg_encoded = urllib.parse.quote(message)
+        whatsapp_url = f"https://wa.me/{my_whatsapp}?text={msg_encoded}"
         
-        # كود بسيط لحفظ البيانات في ملف CSV (بيفتح بالإكسيل)
-        df = pd.DataFrame([new_order])
+        # حفظ الطلب في ملف CSV
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        df = pd.DataFrame([{"الوقت": now, "العميل": name, "الهاتف": phone, "العطر": selected}])
         df.to_csv("orders.csv", mode='a', index=False, header=not os.path.exists("orders.csv"), encoding='utf-8-sig')
         
-        st.success(f"شكراً يا {name}! تم استلام طلبك لـ {selected} وسنتواصل معك.")
+        st.success(f"شكراً يا {name}! اضغط على الزر بالأسفل لإرسال طلبك.")
+        st.markdown(f'''
+            <a href="{whatsapp_url}" target="_blank">
+                <div style="text-align: center; background-color: #25D366; color: white; padding: 10px; border-radius: 5px; font-weight: bold; text-decoration: none;">
+                    إرسال الطلب الآن (فتح واتساب)
+                </div>
+            </a>
+            ''', unsafe_allow_html=True)
         st.balloons()
     else:
-        st.error("برجاء إدخال بيانات صحيحة")
+        st.error("برجاء إدخال الاسم ورقم هاتف صحيح")
