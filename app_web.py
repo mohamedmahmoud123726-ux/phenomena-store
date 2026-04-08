@@ -7,7 +7,7 @@ import os
 # Page Settings
 st.set_page_config(page_title="Phenomena Luxury", page_icon="💎", layout="centered")
 
-# Custom CSS for Luxury Look
+# Custom CSS for Luxury Look (Simplified, with no specific Image CSS)
 st.markdown("""
     <style>
     .stApp { background-color: #050505; color: white; }
@@ -32,16 +32,6 @@ st.markdown("""
         border: none;
     }
     .stTextInput label, .stSelectbox label { color: #d4af37 !important; font-weight: bold; }
-    
-    /* Control Image Size */
-    .stImage > img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 350px; 
-        border-radius: 15px;
-        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -63,8 +53,9 @@ perfumes = {
 
 selected = st.selectbox("Select Your Fragrance:", list(perfumes.keys()))
 
-# Display Image
-st.image(perfumes[selected]["img"])
+# --- THE FIX: Direct Image Size Control ---
+# عرض الصورة مباشرة مع تحديد العرض بالبكسل (350px هو حجم مناسب جداً للمنتج)
+st.image(perfumes[selected]["img"], width=350)
 
 # Price Display
 st.markdown(f"<h2 style='text-align: center; color: #d4af37;'>{perfumes[selected]['price']} EGP</h2>", unsafe_allow_html=True)
